@@ -1,6 +1,9 @@
 package com.github.antlrjavaparser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class SharedSequence {
 
@@ -48,7 +51,30 @@ public class SharedSequence {
 		}
         return LCSmatrix;
     }
-
+    public static HashSet<String> backtrackAll(int[][] C, ArrayList<String> s1, ArrayList<String> s2, int i, int j){
+    	HashSet<String> set = new HashSet<String>();
+    	for(int l=0;l<i;l++)
+    	{
+    		for(int k=0;k<j;k++)
+    		{
+    			if(C[l][k]==1)
+	    		{
+	    			String temp="";
+	    			temp+=s1.get(l - 1);
+	    			int tempL=l,tempK=k;
+	    			while(tempL<i && tempK<j)
+	    			{
+	    				if(C[++tempL][++tempK]==0)
+	    					break;
+	    				else
+	    					temp+=s1.get(tempL-1);
+	    			}
+	    			set.add(temp);
+	    		}
+    		}
+    	}
+    	return set;
+    }
     public static void main (String[] args) 
     {
     	ArrayList<String> listA = new ArrayList<String>();
@@ -82,5 +108,9 @@ public class SharedSequence {
         int n = listB.size();
         int[][] sample  = computeSharedSequenceMatrix(listA, listB, m, n);
         
+        Set<String> setString = backtrackAll (sample, listA, listB, m, n);
+        System.out.println(setString);
+       
+
     }
 }
