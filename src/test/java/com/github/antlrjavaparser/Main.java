@@ -22,8 +22,13 @@ package com.github.antlrjavaparser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.Token;
 
+import com.opencsv.CSVWriter;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -47,6 +52,7 @@ public class Main {
         for (SharedCount shared : sharedCount) {
 			System.out.println(shared.getSequence() +" - "+ shared.getCount());
 		}
+        WritingDataToCSV();
     }
     
     public static void UpdateCount(Set<String> setString) {
@@ -67,7 +73,34 @@ public class Main {
 			}	
 		}
     }
-    
+    public static double CalculateScore(String sequence, int count) {
+		return (Math.log(sequence.length())/Math.log(2)) * (Math.log(count)/Math.log(2));
+	}
+    public static void WritingDataToCSV() {
+    	try 
+    	{    
+    		Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\oehsan\\Documents\\abc1.csv"));
+
+    		CSVWriter csvWriter = new CSVWriter(writer,
+    				CSVWriter.DEFAULT_SEPARATOR,
+    				CSVWriter.NO_QUOTE_CHARACTER,
+    				CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+    				CSVWriter.DEFAULT_LINE_END);
+
+    		String[] headerRecord = {"Score", "Tokens", "Count", "Source Code"};
+    		csvWriter.writeNext(headerRecord);
+    		for (SharedCount shared : sharedCount) {
+    			if(shared.getCount() > 1 ) {
+    				double score = CalculateScore(shared.getSequence(), shared.getCount());
+    				csvWriter.writeNext(new String[]{Double.toString(score), String.valueOf(shared.getSequence().length()), String.valueOf(shared.count), shared.getSequence()});
+    			}		
+    		}
+    		csvWriter.close();
+    	} catch (IOException e) {
+
+    		e.printStackTrace();
+    	}
+    }
     public static ArrayList<String> getLexicalTokens(String filename) {
     	InputStream in = Main.class.getClassLoader().getResourceAsStream(filename);
         
