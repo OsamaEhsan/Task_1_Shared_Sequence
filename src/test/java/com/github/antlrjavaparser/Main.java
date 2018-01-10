@@ -22,25 +22,70 @@ package com.github.antlrjavaparser;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.Token;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 
 
 public class Main {
 
-
+	static ArrayList<SharedCount> sharedCount = new ArrayList<SharedCount>();
+	
     public static void main(String args[]) throws Exception {
-        InputStream in = Main.class.getClassLoader().getResourceAsStream("ComplexTest.java");
+    	ArrayList<String> listA = getLexicalTokens("ComplexTest.java");
+        ArrayList<String> listB = getLexicalTokens("ComplexTest2.java");
 
-        if (in == null) {
+        SharedSequence sharedSequence = new SharedSequence();
+        
+        int[][] matrix  = sharedSequence.computeSharedSequenceMatrix(listA, listB, listA.size(), listB.size());
+
+        Set<String> setString = sharedSequence.backtrackAll (matrix, listA, listB, listA.size(), listB.size());
+        System.out.println(setString);
+        UpdateCount(setString);
+        for (SharedCount shared : sharedCount) {
+			System.out.println(shared.getSequence() +" - "+ shared.getCount());
+		}
+    }
+    
+    public static void UpdateCount(Set<String> setString) {
+    	boolean check = true;
+    	for (Iterator iterator = setString.iterator(); iterator.hasNext();) {
+			String sampleString = (String) iterator.next();
+			if(sampleString.length() > 1) {
+				for (int i = 0; i < sharedCount.size(); i++) {
+					if(sharedCount.get(i).equals(sampleString)) {
+						sharedCount.get(i).setCount(sharedCount.get(i).getCount() + 1);
+						check = false;
+					}
+				}
+				if(check) {
+					SharedCount sc = new SharedCount(sampleString, 1);
+					sharedCount.add(sc);
+				}
+			}	
+		}
+    }
+    
+    public static ArrayList<String> getLexicalTokens(String filename) {
+    	InputStream in = Main.class.getClassLoader().getResourceAsStream(filename);
+        
+    	if (in == null) {
             System.err.println("Unable to find test file.");
-            return;
+            return null;
         }
-
-
-
-        Java7Lexer lex = new Java7Lexer(new ANTLRInputStream(in));
-
+        Java7Lexer lex = null;
+		
+        try {
+			lex = new Java7Lexer(new ANTLRInputStream(in));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+		ArrayList<String> lexicalTokens = new ArrayList<String>();
         Token token = null;
+        
         while ((token = lex.nextToken()) != null) {
 
             if (token.getType() == Token.EOF) {
@@ -50,12 +95,10 @@ public class Main {
             if (token.getChannel() == Token.HIDDEN_CHANNEL) {
                 continue;
             }
-
-            System.out.println(token.getText());
+            lexicalTokens.add(token.getText());
         }
-
         lex.reset();
+        return lexicalTokens;
     }
-
 
 }
