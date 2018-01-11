@@ -44,8 +44,6 @@ public class Main {
     	ArrayList<String> listA = getLexicalTokens("ComplexTest.java");
         ArrayList<String> listB = getLexicalTokens("ComplexTest2.java");
 
-        System.out.println(listA+" - "+ listA.size());
-        System.out.println(listB+" - "+ listB.size());
         SharedSequence sharedSequence = new SharedSequence();
         
         
