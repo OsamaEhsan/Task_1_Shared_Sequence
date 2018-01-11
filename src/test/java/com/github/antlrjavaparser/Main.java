@@ -46,13 +46,13 @@ public class Main {
         
         int[][] matrix  = sharedSequence.computeSharedSequenceMatrix(listA, listB, listA.size(), listB.size());
 
-        Set<String> setString = sharedSequence.backtrackAll (matrix, listA, listB, listA.size(), listB.size());
+        /*Set<String> setString = sharedSequence.backtrackAll (matrix, listA, listB, listA.size(), listB.size());
         System.out.println(setString);
         UpdateCount(setString);
         for (SharedCount shared : sharedCount) {
 			System.out.println(shared.getSequence() +" - "+ shared.getCount());
 		}
-        WritingDataToCSV();
+        WritingDataToCSV();*/
     }
     
     public static void UpdateCount(Set<String> setString) {
