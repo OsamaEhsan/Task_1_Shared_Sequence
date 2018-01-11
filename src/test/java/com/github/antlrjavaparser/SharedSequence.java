@@ -103,7 +103,7 @@ public class SharedSequence {
     	{
     		findOccurences(mapp1,listA,i);
     	}
-    	
+    	System.out.println("found occurrences of file 1...");
     	int m = listA.size();
     	int n = listB.size();
 
@@ -112,9 +112,11 @@ public class SharedSequence {
     	{
     		findOccurences(mapp2,listB,i);
     	}
-
+    	System.out.println("found occurrences of file 2...");
     	int[][] sample  = computeSharedSequenceMatrix(listA, listB, m, n);
+    	System.out.println("Computed Matrix...");
     	HashMap<ArrayList<String>,Integer> MatchedString = backtrackAllNew(mapp1,mapp2,sample, listA, listB, m, n);
+    	System.out.println("Backtracked Matrix...");
     	/*for (Map.Entry<ArrayList<String>, Integer> entry : MatchedString.entrySet()) {
 
     		System.out.println(entry.getKey()+":"+entry.getValue());

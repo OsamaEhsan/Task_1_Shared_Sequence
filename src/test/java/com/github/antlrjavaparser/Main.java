@@ -24,6 +24,7 @@ import org.antlr.v4.runtime.Token;
 
 import com.opencsv.CSVWriter;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
@@ -41,14 +42,26 @@ public class Main {
 	static ArrayList<SharedCount> sharedCount = new ArrayList<SharedCount>();
 	
     public static void main(String args[]) throws Exception {
-    	ArrayList<String> listA = getLexicalTokens("ComplexTest.java");
-        ArrayList<String> listB = getLexicalTokens("ComplexTest2.java");
+    	
+    	File folder = new File("C:\\Users\\oehsan\\Documents\\code\\Task_1_Shared_Sequence\\src\\test\\resources");
+    	File[] listOfFiles = folder.listFiles();
+    	ArrayList<String> listA = new ArrayList<String>();
+        ArrayList<String> listB = new ArrayList<String>();
+    	for (int i = 0; i < listOfFiles.length-1; i++) {
+    		for (int j = i+1; j < listOfFiles.length; j++) {
+    			listA = getLexicalTokens(listOfFiles[i].getName());
+    	        listB = getLexicalTokens(listOfFiles[j].getName());
+    	        System.out.println(listOfFiles[i].getName() + " , " + listOfFiles[j].getName());
+    	        SharedSequence sharedSequence = new SharedSequence();
+    	        HashMap<ArrayList<String>,Integer> matchedString = sharedSequence.mainRun(listA, listB);
+    	        UpdateCount(matchedString);
+			}
+    	}
+    	    
+    	//ArrayList<String> listA = getLexicalTokens("ComplexTest.java");
+        //ArrayList<String> listB = getLexicalTokens("ComplexTest2.java");
 
-        SharedSequence sharedSequence = new SharedSequence();
         
-        
-        HashMap<ArrayList<String>,Integer> matchedString = sharedSequence.mainRun(listA, listB);
-        UpdateCount(matchedString);
         WritingDataToCSV();
        
     }
@@ -56,23 +69,23 @@ public class Main {
     public static void UpdateCount(HashMap<ArrayList<String>,Integer> setString) {
     	boolean check = true;
     	for (Map.Entry<ArrayList<String>, Integer> entry : setString.entrySet()) {
-			String sampleString = String.join(" ", entry.getKey() );
-			if(sampleString.length() > 1) {
+			//String sampleString = String.join(" ", entry.getKey() );
+			if(entry.getKey().size() > 1) {
 				for (int i = 0; i < sharedCount.size(); i++) {
-					if(sharedCount.get(i).equals(sampleString)) {
+					if(sharedCount.get(i).equals(entry.getKey())) {
 						sharedCount.get(i).setCount(sharedCount.get(i).getCount() + entry.getValue());
 						check = false;
 					}
 				}
 				if(check) {
-					SharedCount sc = new SharedCount(sampleString, entry.getValue());
+					SharedCount sc = new SharedCount(entry.getKey(), entry.getValue());
 					sharedCount.add(sc);
 				}
 			}	
 		}
     }
-    public static double CalculateScore(String sequence, int count) {
-		return (Math.log(sequence.length())/Math.log(2)) * (Math.log(count)/Math.log(2));
+    public static double CalculateScore(ArrayList<String> sequence, int count) {
+		return (Math.log(sequence.size())/Math.log(2)) * (Math.log(count)/Math.log(2));
 	}
     public static void WritingDataToCSV() {
     	try 
@@ -90,7 +103,7 @@ public class Main {
     		for (SharedCount shared : sharedCount) {
     			if(shared.getCount() > 1 ) {
     				double score = CalculateScore(shared.getSequence(), shared.getCount());
-    				csvWriter.writeNext(new String[]{Double.toString(score), String.valueOf(shared.getSequence().length()), String.valueOf(shared.count), shared.getSequence()});
+    				csvWriter.writeNext(new String[]{Double.toString(score), String.valueOf(shared.getSequence().size()), String.valueOf(shared.count), String.join(" ", shared.getSequence())});
     			}		
     		}
     		csvWriter.close();

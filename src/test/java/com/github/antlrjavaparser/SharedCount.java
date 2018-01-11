@@ -1,12 +1,14 @@
 package com.github.antlrjavaparser;
 
+import java.util.ArrayList;
+
 public class SharedCount {
-	String sequence;
+	ArrayList<String> sequence;
 	int count;
-	public String getSequence() {
+	public ArrayList<String> getSequence() {
 		return sequence;
 	}
-	public void setSequence(String sequence) {
+	public void setSequence(ArrayList<String> sequence) {
 		this.sequence = sequence;
 	}
 	public int getCount() {
@@ -15,7 +17,7 @@ public class SharedCount {
 	public void setCount(int count) {
 		this.count = count;
 	}
-	public SharedCount(String sequence, int count) {
+	public SharedCount(ArrayList<String> sequence, int count) {
 		 
 		this.sequence = sequence;
 		this.count = count;
