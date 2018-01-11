@@ -90,7 +90,7 @@ public class Main {
     public static void WritingDataToCSV() {
     	try 
     	{    
-    		Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\oehsan\\Documents\\abc1.csv"));
+    		Writer writer = Files.newBufferedWriter(Paths.get("C:\\Users\\oehsan\\Documents\\data.csv"));
 
     		CSVWriter csvWriter = new CSVWriter(writer,
     				CSVWriter.DEFAULT_SEPARATOR,
@@ -103,7 +103,7 @@ public class Main {
     		for (SharedCount shared : sharedCount) {
     			if(shared.getCount() > 1 ) {
     				double score = CalculateScore(shared.getSequence(), shared.getCount());
-    				csvWriter.writeNext(new String[]{Double.toString(score), String.valueOf(shared.getSequence().size()), String.valueOf(shared.count), String.join(" ", shared.getSequence())});
+    				csvWriter.writeNext(new String[]{Double.toString(score), String.valueOf(shared.getSequence().size()), String.valueOf(shared.count), "\"" +String.join(" ", shared.getSequence()) });
     			}		
     		}
     		csvWriter.close();
