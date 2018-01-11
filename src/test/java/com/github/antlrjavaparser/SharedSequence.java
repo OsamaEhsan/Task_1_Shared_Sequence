@@ -3,8 +3,11 @@ package com.github.antlrjavaparser;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 
 public class SharedSequence {
@@ -20,7 +23,7 @@ public class SharedSequence {
                 if (i == 0 || j == 0)
                     matrix[i][j] = 0;
  
-                else if (listA.get(i - 1) == listB.get(j - 1)) {
+                else if (listA.get(i - 1).equals(listB.get(j - 1))) {
                 	matrix[i][j] = matrix[i - 1][j - 1] + 1;
                     if (length < matrix[i][j] ) {
                         length = matrix[i][j];
@@ -48,24 +51,24 @@ public class SharedSequence {
         return matrix;
     }
     
-    private static HashMap<String,Integer> backtrackAllNew(HashMap<String,Integer> map1,HashMap<String,Integer> map2,int[][] C, ArrayList<String> s1, ArrayList<String> s2, int i, int j){
+    private static HashMap<ArrayList<String>,Integer> backtrackAllNew(HashMap<List<String>,Integer> map1,HashMap<List<String>,Integer> map2,int[][] C, ArrayList<String> s1, ArrayList<String> s2, int i, int j){
 
-    	HashMap<String,Integer> set = new HashMap<String,Integer>();
+    	HashMap<ArrayList<String>,Integer> set = new HashMap<ArrayList<String>,Integer>();
     	for(int l=0;l<i;l++)
     	{
     		for(int k=0;k<j;k++)
     		{
     			if(C[l][k]==1)
     			{
-    				String temp="";
-    				temp+=s1.get(l - 1);
+    				ArrayList<String> temp= new ArrayList<String>();
+    				temp.add(s1.get(l - 1));
     				int tempL=l,tempK=k;
     				while(tempL<i && tempK<j)
     				{
     					if(C[++tempL][++tempK]==0)
     						break;
     					else
-    						temp+=s1.get(tempL-1);
+    						temp.add(s1.get(tempL-1));
     				}
     				Integer count=0;
     				Integer val1=map1.get(temp);
@@ -81,93 +84,42 @@ public class SharedSequence {
     	return set;
     }
     
-    public static void findOccurences(Map<ArrayList<String>, Integer> map,ArrayList<String> str, int length) {
+    public static void findOccurences(Map<List<String>, Integer> map,ArrayList<String> str, int length) {
         int limit = str.size() - length + 1;
         for (int i = 0; i < limit; i++) {
-        	ArrayList<String> sub = new ArrayList<String>(str.subList(i, i + length));
-            Integer counter = map.get(sub);
+            Integer counter = map.get(str.subList(i, i + length));
             if (counter == null) {
                 counter = 0;
             }
-            map.put(sub, ++counter);
+            map.put( str.subList(i, i + length), ++counter);
         }
-      
     }
 
-    public static void main (String[] args) 
+    public static HashMap<ArrayList<String>,Integer> mainRun (ArrayList<String> listA, ArrayList<String> listB) 
     {
-    	ArrayList<String> listA = new ArrayList<String>();
-    	listA.add("for");
-    	listA.add("(");
-    	listA.add("int");
-    	listA.add("i");
-    	listA.add("=");
-    	listA.add("0");
-    	listA.add("for");
-    	listA.add("(");
-    	listA.add("int");
-    	listA.add("i");
-    	listA.add("=");
-    	listA.add("0");
-    	listA.add(";");
-    	listA.add("i");
-    	listA.add(">");
-    	listA.add("10");
 
-    	Map<ArrayList<String>, Integer> mapp1=new HashMap<ArrayList<String>, Integer>();
+    	HashMap<List<String>, Integer> mapp1=new HashMap<List<String>, Integer>();
     	for(int i=2;i<listA.size();i++)
     	{
     		findOccurences(mapp1,listA,i);
     	}
-    	HashMap <String, Integer> map1=new HashMap<String, Integer>();
-    	for (Map.Entry<ArrayList<String>, Integer> entry : mapp1.entrySet()) {
-    		ArrayList<String> list = entry.getKey();
-    		String temp="";
-    		for(int j=0;j<list.size();j++)
-    			temp+=list.get(j);
-    		map1.put(temp, entry.getValue());
-    	}
-
-    	ArrayList<String> listB = new ArrayList<String>();
-
-    	listB.add("for");
-    	listB.add("(");
-    	listB.add("string");
-    	listB.add("j");
-    	listB.add("=");
-    	listB.add("0");
-    	listB.add(";");
-    	listB.add("j");
-    	listB.add(">");
-    	listB.add("10");
-    	listB.add("=");
-    	listB.add("0");
-    	listB.add(";");
+    	
     	int m = listA.size();
     	int n = listB.size();
 
-    	Map<ArrayList<String>, Integer> mapp2=new HashMap<ArrayList<String>, Integer>();
+    	HashMap<List<String>, Integer> mapp2=new HashMap<List<String>, Integer>();
     	for(int i=2;i<listB.size();i++)
     	{
     		findOccurences(mapp2,listB,i);
     	}
-    	HashMap <String, Integer> map2=new HashMap<String, Integer>();
-    	for (Map.Entry<ArrayList<String>, Integer> entry : mapp2.entrySet()) {
 
-    		ArrayList<String> list = entry.getKey();
-    		String temp="";
-    		for(int j=0;j<list.size();j++)
-    			temp+=list.get(j);
-
-    		map2.put(temp, entry.getValue());
-    	}
     	int[][] sample  = computeSharedSequenceMatrix(listA, listB, m, n);
-    	HashMap<String,Integer> MatchedString = backtrackAllNew(map1,map2,sample, listA, listB, m, n);
-    	for (Map.Entry<String, Integer> entry : MatchedString.entrySet()) {
+    	HashMap<ArrayList<String>,Integer> MatchedString = backtrackAllNew(mapp1,mapp2,sample, listA, listB, m, n);
+    	/*for (Map.Entry<ArrayList<String>, Integer> entry : MatchedString.entrySet()) {
 
     		System.out.println(entry.getKey()+":"+entry.getValue());
-    	}
+    	}*/
     	System.out.println("-----------------------");
-
+    	return MatchedString;
     }
 }

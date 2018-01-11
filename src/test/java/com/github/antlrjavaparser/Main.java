@@ -30,7 +30,9 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -42,32 +44,30 @@ public class Main {
     	ArrayList<String> listA = getLexicalTokens("ComplexTest.java");
         ArrayList<String> listB = getLexicalTokens("ComplexTest2.java");
 
+        System.out.println(listA+" - "+ listA.size());
+        System.out.println(listB+" - "+ listB.size());
         SharedSequence sharedSequence = new SharedSequence();
         
-        int[][] matrix  = sharedSequence.computeSharedSequenceMatrix(listA, listB, listA.size(), listB.size());
-
-        /*Set<String> setString = sharedSequence.backtrackAll (matrix, listA, listB, listA.size(), listB.size());
-        System.out.println(setString);
-        UpdateCount(setString);
-        for (SharedCount shared : sharedCount) {
-			System.out.println(shared.getSequence() +" - "+ shared.getCount());
-		}
-        WritingDataToCSV();*/
+        
+        HashMap<ArrayList<String>,Integer> matchedString = sharedSequence.mainRun(listA, listB);
+        UpdateCount(matchedString);
+        WritingDataToCSV();
+       
     }
     
-    public static void UpdateCount(Set<String> setString) {
+    public static void UpdateCount(HashMap<ArrayList<String>,Integer> setString) {
     	boolean check = true;
-    	for (Iterator iterator = setString.iterator(); iterator.hasNext();) {
-			String sampleString = (String) iterator.next();
+    	for (Map.Entry<ArrayList<String>, Integer> entry : setString.entrySet()) {
+			String sampleString = String.join(" ", entry.getKey() );
 			if(sampleString.length() > 1) {
 				for (int i = 0; i < sharedCount.size(); i++) {
 					if(sharedCount.get(i).equals(sampleString)) {
-						sharedCount.get(i).setCount(sharedCount.get(i).getCount() + 1);
+						sharedCount.get(i).setCount(sharedCount.get(i).getCount() + entry.getValue());
 						check = false;
 					}
 				}
 				if(check) {
-					SharedCount sc = new SharedCount(sampleString, 1);
+					SharedCount sc = new SharedCount(sampleString, entry.getValue());
 					sharedCount.add(sc);
 				}
 			}	
@@ -121,7 +121,7 @@ public class Main {
         
         while ((token = lex.nextToken()) != null) {
 
-            if (token.getType() == Token.EOF) {
+            if (token.getType() == Token.EOF || token.getText() == "\n") {
                 break;
             }
 
