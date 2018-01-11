@@ -12,7 +12,30 @@ import org.apache.commons.lang3.StringUtils;
 
 public class SharedSequence {
 
-    static int[][] computeSharedSequenceMatrix(ArrayList<String> listA, ArrayList<String> listB, int m, int n)
+	 /** This functions find the count of sequences with in the file.
+	 * @param map
+	 * @param str
+	 * @param length
+	 */
+	void findOccurences(Map<List<String>, Integer> map,ArrayList<String> str, int length) {
+	        int limit = str.size() - length + 1;
+	        for (int i = 0; i < limit; i++) {
+	            Integer counter = map.get(str.subList(i, i + length));
+	            if (counter == null) {
+	                counter = 0;
+	            }
+	            map.put( str.subList(i, i + length), ++counter);
+	        }
+	    }
+	
+    /** This function computes the Dynamic Programming matrix of SHARED sequences among tokens from two different files
+     * @param listA
+     * @param listB
+     * @param m (size of listA)
+     * @param n (size of listB)
+     * @return
+     */
+    int[][] computeSharedSequenceMatrix(ArrayList<String> listA, ArrayList<String> listB, int m, int n)
     {
         int[][] matrix = new int[m + 1][n + 1];
         int length = 0;
@@ -51,7 +74,18 @@ public class SharedSequence {
         return matrix;
     }
     
-    private static HashMap<ArrayList<String>,Integer> backtrackAllNew(HashMap<List<String>,Integer> map1,HashMap<List<String>,Integer> map2,int[][] C, ArrayList<String> s1, ArrayList<String> s2, int i, int j){
+    /** This function goes through the matrix created and backtracks all the tokens. 
+     *  it also makes sure that the sequence is shared among the files
+     * @param map1
+     * @param map2
+     * @param C
+     * @param s1
+     * @param s2
+     * @param i
+     * @param j
+     * @return
+     */
+    static HashMap<ArrayList<String>,Integer> backtrackAllNew(HashMap<List<String>,Integer> map1,HashMap<List<String>,Integer> map2,int[][] C, ArrayList<String> s1, ArrayList<String> s2, int i, int j){
 
     	HashMap<ArrayList<String>,Integer> set = new HashMap<ArrayList<String>,Integer>();
     	for(int l=0;l<i;l++)
@@ -84,43 +118,41 @@ public class SharedSequence {
     	return set;
     }
     
-    public static void findOccurences(Map<List<String>, Integer> map,ArrayList<String> str, int length) {
-        int limit = str.size() - length + 1;
-        for (int i = 0; i < limit; i++) {
-            Integer counter = map.get(str.subList(i, i + length));
-            if (counter == null) {
-                counter = 0;
-            }
-            map.put( str.subList(i, i + length), ++counter);
-        }
-    }
 
-    public static HashMap<ArrayList<String>,Integer> mainRun (ArrayList<String> listA, ArrayList<String> listB) 
+    /** This function simulate the algorithm by following the steps
+     * 1- Find occurrences in each file
+     * 2- Compute Matrix of SHARED sequences
+     * 3- Backtrack Matrix to get sequences
+     * @param listA
+     * @param listB
+     * @return
+     */
+    public HashMap<ArrayList<String>,Integer> Simulate (ArrayList<String> listA, ArrayList<String> listB) 
     {
-
-    	HashMap<List<String>, Integer> mapp1=new HashMap<List<String>, Integer>();
-    	for(int i=2;i<listA.size();i++)
+    	//Step 1
+    	HashMap<List<String>, Integer> mapFirstFile = new HashMap<List<String>, Integer>();
+    	for(int i = 2; i<listA.size(); i++)
     	{
-    		findOccurences(mapp1,listA,i);
+    		findOccurences(mapFirstFile, listA, i);
     	}
     	System.out.println("found occurrences of file 1...");
     	int m = listA.size();
     	int n = listB.size();
 
-    	HashMap<List<String>, Integer> mapp2=new HashMap<List<String>, Integer>();
+    	HashMap<List<String>, Integer> mapSecondFile=new HashMap<List<String>, Integer>();
     	for(int i=2;i<listB.size();i++)
     	{
-    		findOccurences(mapp2,listB,i);
+    		findOccurences(mapSecondFile,listB,i);
     	}
     	System.out.println("found occurrences of file 2...");
+    	
+    	//Step 2
     	int[][] sample  = computeSharedSequenceMatrix(listA, listB, m, n);
     	System.out.println("Computed Matrix...");
-    	HashMap<ArrayList<String>,Integer> MatchedString = backtrackAllNew(mapp1,mapp2,sample, listA, listB, m, n);
+    	
+    	//Step 3
+    	HashMap<ArrayList<String>,Integer> MatchedString = backtrackAllNew(mapFirstFile,mapSecondFile,sample, listA, listB, m, n);
     	System.out.println("Backtracked Matrix...");
-    	/*for (Map.Entry<ArrayList<String>, Integer> entry : MatchedString.entrySet()) {
-
-    		System.out.println(entry.getKey()+":"+entry.getValue());
-    	}*/
     	System.out.println("-----------------------");
     	return MatchedString;
     }
